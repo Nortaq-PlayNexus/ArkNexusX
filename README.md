@@ -1,6 +1,30 @@
-# ARK NEXUS X
+<p align="center">
+  <img src="https://img.shields.io/badge/ARK%20NEXUS%20X-AUTOMATION%20OS-ff4d00?style=flat-square&labelColor=0a0e1a" alt="arknexus" />
+</p>
 
-An autonomous desktop automation operating system for ARK: Survival Evolved and ARK: Survival Ascended.
+# ARK NEXUS X :: DESKTOP AUTOMATION OS
+
+**An autonomous desktop automation operating system for ARK: Survival Evolved and ARK: Survival Ascended.**
+
+<p align="center">
+  <img src="https://img.shields.io/badge/SHELL-RUST%20%2F%20TAURI-ffc430?style=flat-square&logo=rust&logoColor=ffc430&labelColor=0a0e1a" alt="rust"/>
+  <img src="https://img.shields.io/badge/UI-REACT%20%2F%20TS-3dd5ff?style=flat-square&logo=react&logoColor=3dd5ff&labelColor=0a0e1a" alt="react"/>
+  <img src="https://img.shields.io/badge/VISION-OPENCV%20%2F%20YOLO-00E5FF?style=flat-square&labelColor=0a0e1a" alt="vision"/>
+  <img src="https://img.shields.io/badge/AUTOMATION-NEXUSSCRIPT%20VM-B8FF1E?style=flat-square&labelColor=0a0e1a" alt="nexusscript"/>
+  <img src="https://img.shields.io/badge/AI-BEHAVIOR%20TREES-00E5FF?style=flat-square&labelColor=0a0e1a" alt="ai"/>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/LICENSE-MIT-ff3b3b?style=flat-square&labelColor=0a0e1a" alt="license"/></a>
+</p>
+
+<pre>
+IDENT ......... ARKNEXUS-01
+CLASS ......... AUTONOMOUS AUTOMATION OS
+STATUS ........ ONLINE / ACTIVE
+STACK ......... RUST · TAURI · REACT · PYTHON · OPENCV/YOLO
+AGENTS ........ BEHAVIOR-TREE + LLM + VISION
+LINK .......... /ArkNexusX
+</pre>
+
+---
 
 > Rust/Tauri + React desktop shell, a Python/OpenCV/YOLO vision sidecar, sandboxed NexusScript automation, AI agents, scheduler, device integration, and a self-improving autopilot.
 
