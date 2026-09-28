@@ -95,8 +95,7 @@ impl Scheduler {
                 Trigger::Cron(expr) => {
                     let c = crate::cron::parse_cron(expr).ok();
                     // fire at most once per minute window
-                    c.map(|c| c.matches(&now))
-                        .unwrap_or(false)
+                    c.map(|c| c.matches(&now)).unwrap_or(false)
                         && (now - prev) >= chrono::Duration::seconds(30)
                 }
                 Trigger::Interval(d) => {

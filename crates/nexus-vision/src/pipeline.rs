@@ -85,7 +85,8 @@ impl TemporalTracker {
     pub fn update(&mut self, detections: &[(String, f64, [u32; 4])], now_ms: u64) {
         self.now = now_ms;
         // age out old tracks
-        self.tracks.retain(|t| now_ms.saturating_sub(t.last_seen_ms) <= self.max_age_ms);
+        self.tracks
+            .retain(|t| now_ms.saturating_sub(t.last_seen_ms) <= self.max_age_ms);
 
         for (class, conf, bbox) in detections {
             let mut best: Option<(usize, f64)> = None;
@@ -144,7 +145,7 @@ mod tests {
     fn iou_calculation() {
         let a = [0, 0, 100, 100];
         let b = [50, 50, 100, 100]; // overlap 50x50
-        // bboxes are [x, y, w, h]; union = 10000+10000-2500
+                                    // bboxes are [x, y, w, h]; union = 10000+10000-2500
         assert!((TemporalTracker::iou(&a, &b) - (2500.0 / 17500.0)).abs() < 1e-6);
         let c = [200, 200, 10, 10];
         assert_eq!(TemporalTracker::iou(&a, &c), 0.0);

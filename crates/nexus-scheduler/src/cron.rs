@@ -49,7 +49,9 @@ fn parse_field(s: &str, max: u32) -> Result<Field, CronError> {
             continue;
         }
         if part.contains('-') {
-            let (a, b) = part.split_once('-').ok_or(CronError::BadField(part.into()))?;
+            let (a, b) = part
+                .split_once('-')
+                .ok_or(CronError::BadField(part.into()))?;
             let a: u32 = a.parse().map_err(|_| CronError::BadField(part.into()))?;
             let b: u32 = b.parse().map_err(|_| CronError::BadField(part.into()))?;
             if a > b || b > max {

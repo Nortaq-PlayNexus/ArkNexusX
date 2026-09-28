@@ -2,4 +2,4 @@ pub mod engine;
 pub mod events;
 
 pub use engine::InputEngine;
-pub use events::{InputEvent, InputError, KeyState, ProducerId};
+pub use events::{InputError, InputEvent, KeyState, ProducerId};

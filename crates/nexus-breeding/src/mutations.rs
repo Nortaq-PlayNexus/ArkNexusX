@@ -1,5 +1,14 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use thiserror::Error;
+
+#[derive(Debug, Clone, Error, PartialEq)]
+pub enum BreedingError {
+    #[error("unknown tame: {0}")]
+    UnknownTame(String),
+    #[error("species mismatch: {0} vs {1}")]
+    SpeciesMismatch(String, String),
+}
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub enum Stat {
@@ -77,19 +86,36 @@ impl MutationTracker {
 
     /// Simulate offspring by averaging parent stats, then applying the
     /// mutation bonus where a mutation is claimed.
-    pub fn breed(&self, sire_id: &str, dam_id: &str, mutations: &[Stat]) -> Result<Offspring, String> {
-        let sire = self.get(sire_id).ok_or(format!("unknown sire {sire_id}"))?;
-        let dam = self.get(dam_id).ok_or(format!("unknown dam {dam_id}"))?;
+    pub fn breed(
+        &self,
+        sire_id: &str,
+        dam_id: &str,
+        mutations: &[Stat],
+    ) -> Result<Offspring, BreedingError> {
+        let sire = self
+            .get(sire_id)
+            .ok_or_else(|| BreedingError::UnknownTame(sire_id.into()))?;
+        let dam = self
+            .get(dam_id)
+            .ok_or_else(|| BreedingError::UnknownTame(dam_id.into()))?;
         if sire.species != dam.species {
-            return Err(format!(
-                "species mismatch: {} vs {}",
-                sire.species, dam.species
+            return Err(BreedingError::SpeciesMismatch(
+                sire.species.clone(),
+                dam.species.clone(),
             ));
         }
 
         let mut expected = HashMap::new();
         let mut predicted = Vec::new();
-        for stat in [Stat::Health, Stat::Stamina, Stat::Oxygen, Stat::Food, Stat::Weight, Stat::Damage, Stat::Speed] {
+        for stat in [
+            Stat::Health,
+            Stat::Stamina,
+            Stat::Oxygen,
+            Stat::Food,
+            Stat::Weight,
+            Stat::Damage,
+            Stat::Speed,
+        ] {
             let sire_v = sire.stats.get(&stat).copied().unwrap_or(0.0);
             let dam_v = dam.stats.get(&stat).copied().unwrap_or(0.0);
             let base = (sire_v + dam_v) / 2.0;
@@ -127,7 +153,10 @@ mod tests {
             id: id.into(),
             species: "Rex".into(),
             stats,
-            lineage: Lineage { sire: None, dam: None },
+            lineage: Lineage {
+                sire: None,
+                dam: None,
+            },
             generation: 0,
         }
     }
@@ -162,14 +191,16 @@ mod tests {
         let mut giga = rex("G", 500.0);
         giga.species = "Giga".into();
         t.register(giga);
-        assert!(t.breed("A", "G", &[]).is_err());
+        let err = t.breed("A", "G", &[]).unwrap_err();
+        assert!(matches!(err, BreedingError::SpeciesMismatch(_, _)));
     }
 
     #[test]
     fn unknown_parent_errors() {
         let mut t = MutationTracker::new();
         t.register(rex("A", 100.0));
-        assert!(t.breed("A", "Nope", &[]).is_err());
+        let err = t.breed("A", "Nope", &[]).unwrap_err();
+        assert!(matches!(err, BreedingError::UnknownTame(ref s) if s == "Nope"));
     }
 
     #[test]

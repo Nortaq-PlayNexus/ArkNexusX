@@ -123,7 +123,11 @@ impl DecisionEngine {
                 reasons: vec!["cost model".into()],
             })
             .collect();
-        ranked.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap_or(std::cmp::Ordering::Equal));
+        ranked.sort_by(|a, b| {
+            b.score
+                .partial_cmp(&a.score)
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
 
         let best = ranked.first().cloned();
         let (plan, confidence) = match best {
@@ -133,8 +137,7 @@ impl DecisionEngine {
                     .zip(ranked.get(1))
                     .map(|(a, b)| (a.score - b.score).abs())
                     .unwrap_or(1.0);
-                let conf = (b.score / (b.score.abs() + 1.0) + spread * 0.5)
-                    .clamp(0.0, 1.0);
+                let conf = (b.score / (b.score.abs() + 1.0) + spread * 0.5).clamp(0.0, 1.0);
                 (b.plan.clone(), conf)
             }
             None => ("wait".into(), 0.0),

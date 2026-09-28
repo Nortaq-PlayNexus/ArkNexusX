@@ -72,12 +72,17 @@ impl Package {
                 return Err(PackageError::DuplicateDep(d.id.clone()));
             }
         }
-        let high_risk = [Capability::Network, Capability::FileWrite, Capability::Process];
+        let high_risk = [
+            Capability::Network,
+            Capability::FileWrite,
+            Capability::Process,
+        ];
         for cap in &self.manifest.capabilities {
-            if high_risk.contains(cap)
-                && matches!(self.manifest.tier, ReviewTier::Community)
-            {
-                return Err(PackageError::CapabilityForbidden(cap.clone(), self.manifest.tier));
+            if high_risk.contains(cap) && matches!(self.manifest.tier, ReviewTier::Community) {
+                return Err(PackageError::CapabilityForbidden(
+                    cap.clone(),
+                    self.manifest.tier,
+                ));
             }
         }
         Ok(())
@@ -154,12 +159,15 @@ mod tests {
     fn duplicate_dep_rejected() {
         let mut p = pkg(ReviewTier::Official, vec![]);
         p.manifest.deps = vec![
-            Dep { id: "a".into(), version: "1.0.0".into() },
-            Dep { id: "a".into(), version: "2.0.0".into() },
+            Dep {
+                id: "a".into(),
+                version: "1.0.0".into(),
+            },
+            Dep {
+                id: "a".into(),
+                version: "2.0.0".into(),
+            },
         ];
-        assert_eq!(
-            p.validate(),
-            Err(PackageError::DuplicateDep("a".into()))
-        );
+        assert_eq!(p.validate(), Err(PackageError::DuplicateDep("a".into())));
     }
 }

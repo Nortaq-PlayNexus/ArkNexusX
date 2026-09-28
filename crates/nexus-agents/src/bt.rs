@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub enum Status {
@@ -83,14 +84,37 @@ impl Behavior for Leaf {
 pub struct Timeout {
     pub child: Box<dyn Behavior>,
     pub max_ticks: usize,
+    ticks: AtomicUsize,
+}
+
+impl Timeout {
+    pub fn new(child: Box<dyn Behavior>, max_ticks: usize) -> Self {
+        Self {
+            child,
+            max_ticks,
+            ticks: AtomicUsize::new(0),
+        }
+    }
+
+    pub fn reset(&self) {
+        self.ticks.store(0, Ordering::SeqCst);
+    }
 }
 
 impl Behavior for Timeout {
     fn tick(&self, bb: &BlackboardView, trace: &mut Vec<String>) -> Status {
-        // A simplified guard: uses the trace length as a proxy tick counter.
-        let _ = bb;
-        let _ = trace;
-        self.child.tick(bb, trace)
+        let current = self.ticks.load(Ordering::SeqCst);
+        if current >= self.max_ticks {
+            trace.push(format!("timeout:exceeded({})", self.max_ticks));
+            return Status::Failure;
+        }
+        self.ticks.fetch_add(1, Ordering::SeqCst);
+        let result = self.child.tick(bb, trace);
+        if result == Status::Running && self.ticks.load(Ordering::SeqCst) >= self.max_ticks {
+            Status::Failure
+        } else {
+            result
+        }
     }
 }
 
@@ -113,6 +137,10 @@ pub fn sequence(children: Vec<Box<dyn Behavior>>) -> Box<dyn Behavior> {
 
 pub fn selector(children: Vec<Box<dyn Behavior>>) -> Box<dyn Behavior> {
     Box::new(Selector { children })
+}
+
+pub fn timeout(child: Box<dyn Behavior>, max_ticks: usize) -> Box<dyn Behavior> {
+    Box::new(Timeout::new(child, max_ticks))
 }
 
 #[cfg(test)]
@@ -160,6 +188,28 @@ mod tests {
                 Status::Failure
             }
         });
+        let v = view();
+        let mut trace = Vec::new();
+        assert_eq!(tree.tick(&v, &mut trace), Status::Success);
+    }
+
+    #[test]
+    fn timeout_fails_after_max_ticks() {
+        let tree = timeout(leaf("running_forever", |_, _| Status::Running), 3);
+        let v = view();
+        let mut trace = Vec::new();
+        // ticks 1-2: still running
+        assert_eq!(tree.tick(&v, &mut trace), Status::Running);
+        assert_eq!(tree.tick(&v, &mut trace), Status::Running);
+        // tick 3: reaches max_ticks -> Failure
+        assert_eq!(tree.tick(&v, &mut trace), Status::Failure);
+        // tick 4: already exceeded -> Failure
+        assert_eq!(tree.tick(&v, &mut trace), Status::Failure);
+    }
+
+    #[test]
+    fn timeout_passes_success_immediately() {
+        let tree = timeout(leaf("fast_success", |_, _| Status::Success), 5);
         let v = view();
         let mut trace = Vec::new();
         assert_eq!(tree.tick(&v, &mut trace), Status::Success);

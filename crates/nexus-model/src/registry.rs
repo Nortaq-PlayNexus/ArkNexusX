@@ -58,7 +58,12 @@ impl Default for ModelRegistry {
     fn default() -> Self {
         Self {
             models: HashMap::new(),
-            fallback_order: vec![Device::Cuda, Device::TensorRt, Device::DirectMl, Device::Cpu],
+            fallback_order: vec![
+                Device::Cuda,
+                Device::TensorRt,
+                Device::DirectMl,
+                Device::Cpu,
+            ],
         }
     }
 }
@@ -78,11 +83,7 @@ impl ModelRegistry {
 
     /// Resolve the best device for a model given which GPU devices are
     /// actually available. Falls back down the chain.
-    pub fn resolve_device(
-        &self,
-        id: &str,
-        available: &[Device],
-    ) -> Result<ModelInfo, ModelError> {
+    pub fn resolve_device(&self, id: &str, available: &[Device]) -> Result<ModelInfo, ModelError> {
         let info = self.models.get(id).ok_or(ModelError::NotFound(id.into()))?;
         let mut resolved = info.clone();
         resolved.device = Device::Cpu;
@@ -97,7 +98,12 @@ impl ModelRegistry {
 
     /// GPU memory guard: refuse a GPU-resident model if free VRAM is below
     /// the budget.
-    pub fn check_vram(&self, device: Device, free_mb: u64, budget_mb: u64) -> Result<(), ModelError> {
+    pub fn check_vram(
+        &self,
+        device: Device,
+        free_mb: u64,
+        budget_mb: u64,
+    ) -> Result<(), ModelError> {
         if device == Device::Cpu {
             return Ok(());
         }
@@ -140,7 +146,9 @@ mod tests {
     fn resolve_falls_back_to_cpu() {
         let mut r = ModelRegistry::new();
         r.register(yolo());
-        let resolved = r.resolve_device("yolo-ark-v3", &[Device::DirectMl]).unwrap();
+        let resolved = r
+            .resolve_device("yolo-ark-v3", &[Device::DirectMl])
+            .unwrap();
         assert_eq!(resolved.device, Device::DirectMl);
         let cpu = r.resolve_device("yolo-ark-v3", &[]).unwrap();
         assert_eq!(cpu.device, Device::Cpu);
@@ -158,7 +166,10 @@ mod tests {
     #[test]
     fn vram_guard_blocks_low_memory() {
         let r = ModelRegistry::new();
-        assert_eq!(r.check_vram(Device::Cuda, 1024, 2048), Err(ModelError::NoGpu));
+        assert_eq!(
+            r.check_vram(Device::Cuda, 1024, 2048),
+            Err(ModelError::NoGpu)
+        );
         assert!(r.check_vram(Device::Cuda, 4096, 2048).is_ok());
         assert!(r.check_vram(Device::Cpu, 0, 2048).is_ok());
     }

@@ -131,7 +131,14 @@ impl MacroEngine {
                     clock += *timeout_ms as f64; // simulate wait cost
                 }
                 MacroNode::Call { macro_id, depth } => {
-                    self.replay_call(macro_id, *depth, &producer, &mut clock, &mut report, on_send)?;
+                    self.replay_call(
+                        macro_id,
+                        *depth,
+                        &producer,
+                        &mut clock,
+                        &mut report,
+                        on_send,
+                    )?;
                 }
             }
         }

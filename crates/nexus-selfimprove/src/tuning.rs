@@ -67,7 +67,11 @@ impl LearningLoop {
             .map(|(name, (count, ok))| Metric {
                 name,
                 count,
-                success: if count == 0 { 0.0 } else { ok as f64 / count as f64 },
+                success: if count == 0 {
+                    0.0
+                } else {
+                    ok as f64 / count as f64
+                },
             })
             .collect()
     }
@@ -128,14 +132,20 @@ mod tests {
         let mut s = TelemetryStore::new();
         for _ in 0..n_ok {
             s.record(TelemetryEvent {
-                outcome: Outcome { success: true, detail: None },
+                outcome: Outcome {
+                    success: true,
+                    detail: None,
+                },
                 kind: "tame.success".into(),
                 ..TelemetryEvent::new("agent", "tame")
             });
         }
         for _ in 0..n_fail {
             s.record(TelemetryEvent {
-                outcome: Outcome { success: false, detail: Some("torpor drop".into()) },
+                outcome: Outcome {
+                    success: false,
+                    detail: Some("torpor drop".into()),
+                },
                 kind: "tame.success".into(),
                 ..TelemetryEvent::new("agent", "tame")
             });

@@ -45,7 +45,10 @@ impl Vm {
     pub fn new(caps: Vec<&'static str>) -> Self {
         Self {
             hosts: HashMap::new(),
-            context: VmContext { caps, log: Vec::new() },
+            context: VmContext {
+                caps,
+                log: Vec::new(),
+            },
             stats: RuntimeStats::default(),
             options: RunOptions::default(),
             start: std::time::Instant::now(),
@@ -172,7 +175,9 @@ impl Vm {
             }
             Stmt::Run(name, params) => {
                 // run() block: skip body, treat as documentation; execute a host fn if registered
-                self.context.log.push(format!("run {name}({})", params.join(",")));
+                self.context
+                    .log
+                    .push(format!("run {name}({})", params.join(",")));
                 Ok(ExecResult::Normal)
             }
             Stmt::Config(_) => Ok(ExecResult::Normal),
@@ -293,9 +298,15 @@ impl Value {
 fn cmp_values(a: &Value, b: &Value) -> Result<std::cmp::Ordering, VmError> {
     match (a, b) {
         (Value::Int(x), Value::Int(y)) => Ok(x.cmp(y)),
-        (Value::Int(x), Value::Float(y)) => Ok((*x as f64).partial_cmp(y).unwrap_or(std::cmp::Ordering::Equal)),
-        (Value::Float(x), Value::Int(y)) => Ok(x.partial_cmp(&(*y as f64)).unwrap_or(std::cmp::Ordering::Equal)),
-        (Value::Float(x), Value::Float(y)) => Ok(x.partial_cmp(y).unwrap_or(std::cmp::Ordering::Equal)),
+        (Value::Int(x), Value::Float(y)) => Ok((*x as f64)
+            .partial_cmp(y)
+            .unwrap_or(std::cmp::Ordering::Equal)),
+        (Value::Float(x), Value::Int(y)) => Ok(x
+            .partial_cmp(&(*y as f64))
+            .unwrap_or(std::cmp::Ordering::Equal)),
+        (Value::Float(x), Value::Float(y)) => {
+            Ok(x.partial_cmp(y).unwrap_or(std::cmp::Ordering::Equal))
+        }
         (Value::Str(x), Value::Str(y)) => Ok(x.cmp(y)),
         (Value::Bool(x), Value::Bool(y)) => Ok(x.cmp(y)),
         _ => Err(VmError::Runtime("cannot compare values".into())),

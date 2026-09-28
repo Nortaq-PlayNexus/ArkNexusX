@@ -24,3 +24,9 @@ Thumbs.db
 *.key
 *.pem
 .env
+
+# media (local only)
+*.mp3
+*.mp4
+*.wav
+

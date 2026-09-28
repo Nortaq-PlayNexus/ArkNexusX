@@ -1,4 +1,4 @@
-use crate::lex::{Tok, tokenize};
+use crate::lex::{tokenize, Tok};
 use crate::value::{Value, VmError};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -154,7 +154,9 @@ impl Parser {
             Tok::Let => {
                 let name = match self.next() {
                     Tok::Ident(n) => n,
-                    other => return Err(VmError::Compile(format!("expected ident, got {other:?}"))),
+                    other => {
+                        return Err(VmError::Compile(format!("expected ident, got {other:?}")))
+                    }
                 };
                 self.expect(Tok::Assign)?;
                 let e = self.parse_expr()?;
@@ -203,14 +205,20 @@ impl Parser {
                 let name = match self.next() {
                     Tok::Ident(n) => n,
                     Tok::Str(n) => n,
-                    other => return Err(VmError::Compile(format!("expected import, got {other:?}"))),
+                    other => {
+                        return Err(VmError::Compile(format!("expected import, got {other:?}")))
+                    }
                 };
                 Ok(Stmt::Import(name))
             }
             Tok::Run => {
                 let name = match self.next() {
                     Tok::Ident(n) => n,
-                    other => return Err(VmError::Compile(format!("expected run name, got {other:?}"))),
+                    other => {
+                        return Err(VmError::Compile(format!(
+                            "expected run name, got {other:?}"
+                        )))
+                    }
                 };
                 // (params...) optional
                 let mut params = Vec::new();
@@ -224,6 +232,7 @@ impl Parser {
                     self.expect(Tok::RParen)?;
                 }
                 self.expect(Tok::LBrace)?;
+                // Parse body for syntax validation; execution is handled by host VM
                 let _body = self.parse_block()?;
                 Ok(Stmt::Run(name, params))
             }
@@ -233,7 +242,11 @@ impl Parser {
                 while *self.peek() != Tok::RBrace && *self.peek() != Tok::Eof {
                     let key = match self.next() {
                         Tok::Ident(k) => k,
-                        other => return Err(VmError::Compile(format!("expected config key, got {other:?}"))),
+                        other => {
+                            return Err(VmError::Compile(format!(
+                                "expected config key, got {other:?}"
+                            )))
+                        }
                     };
                     if !self.eat(&Tok::Assign) {
                         self.eat(&Tok::Colon);

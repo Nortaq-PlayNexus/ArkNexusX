@@ -27,7 +27,6 @@ pub enum Tok {
     Star,
     Slash,
     Percent,
-    Eq,
     EqEq,
     BangEq,
     Lt,
@@ -35,7 +34,7 @@ pub enum Tok {
     LtEq,
     GtEq,
     Bang,
-    Assign,   // "=" is handled as Eq with different meaning; we treat single '=' as Assign
+    Assign, // "="
     Dot,
     Comma,
     LParen,
@@ -155,20 +154,62 @@ pub fn tokenize(src: &str) -> Result<Vec<Tok>, LexError> {
                     _ => Tok::Ident(id),
                 });
             }
-            '+' => { bump!(); toks.push(Tok::Plus); }
-            '-' => { bump!(); toks.push(Tok::Minus); }
-            '*' => { bump!(); toks.push(Tok::Star); }
-            '/' => { bump!(); toks.push(Tok::Slash); }
-            '%' => { bump!(); toks.push(Tok::Percent); }
-            '(' => { bump!(); toks.push(Tok::LParen); }
-            ')' => { bump!(); toks.push(Tok::RParen); }
-            '{' => { bump!(); toks.push(Tok::LBrace); }
-            '}' => { bump!(); toks.push(Tok::RBrace); }
-            '[' => { bump!(); toks.push(Tok::LBracket); }
-            ']' => { bump!(); toks.push(Tok::RBracket); }
-            ',' => { bump!(); toks.push(Tok::Comma); }
-            ':' => { bump!(); toks.push(Tok::Colon); }
-            '.' => { bump!(); toks.push(Tok::Dot); }
+            '+' => {
+                bump!();
+                toks.push(Tok::Plus);
+            }
+            '-' => {
+                bump!();
+                toks.push(Tok::Minus);
+            }
+            '*' => {
+                bump!();
+                toks.push(Tok::Star);
+            }
+            '/' => {
+                bump!();
+                toks.push(Tok::Slash);
+            }
+            '%' => {
+                bump!();
+                toks.push(Tok::Percent);
+            }
+            '(' => {
+                bump!();
+                toks.push(Tok::LParen);
+            }
+            ')' => {
+                bump!();
+                toks.push(Tok::RParen);
+            }
+            '{' => {
+                bump!();
+                toks.push(Tok::LBrace);
+            }
+            '}' => {
+                bump!();
+                toks.push(Tok::RBrace);
+            }
+            '[' => {
+                bump!();
+                toks.push(Tok::LBracket);
+            }
+            ']' => {
+                bump!();
+                toks.push(Tok::RBracket);
+            }
+            ',' => {
+                bump!();
+                toks.push(Tok::Comma);
+            }
+            ':' => {
+                bump!();
+                toks.push(Tok::Colon);
+            }
+            '.' => {
+                bump!();
+                toks.push(Tok::Dot);
+            }
             '=' => {
                 bump!();
                 if i < chars.len() && chars[i] == '=' {
