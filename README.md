@@ -28,7 +28,8 @@ LINK .......... /ArkNexusX
 
 > Rust/Tauri + React desktop shell, a Python/OpenCV/YOLO vision sidecar, sandboxed NexusScript automation, AI agents, scheduler, device integration, and a self-improving autopilot.
 
-\n---\n\n## Screenshots\n\n| Preview | Description |\n|---------|-------------|\n| ![screenshot](docs/screenshots/screenshot.png) | Main interface |\n| ![screenshot](docs/screenshots/demo.gif) | Demo |\n\n*Screenshots coming soon — placeholders auto-generated. Replace docs/screenshots/ with real captures.*\n\n## Features
+
+## Features
 
 - **Macro Engine** — timeline recording, deterministic replay, and latency compensation
 - **AI Agent Framework** — behavior-tree agents with LLM planning and vision verification
@@ -146,3 +147,8 @@ The full design documentation lives in [`docs/`](docs/README.md):
 ## License
 
 [MIT](LICENSE) © PlayNexus
+
+
+## Screenshot status
+
+Application captures are not included in this checkout. Add screenshots from a documented run before presenting a visual demonstration.
